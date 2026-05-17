@@ -1,0 +1,41 @@
+{
+  "CF_LongVideoSampler": {
+    "title": "CF 长视频采样器",
+    "inputs": {
+      "model": "模型",
+      "vae": "VAE",
+      "noise": "噪声",
+      "sampler": "采样器",
+      "sigmas": "噪声调度",
+      "guider": "引导器",
+      "latents": "潜变量",
+      "temporal_tile_size": "时间块大小（帧）",
+      "temporal_overlap": "时间重叠（帧）",
+      "temporal_overlap_cond_strength": "时间条件强度",
+      "cond_image_strength": "图像条件强度",
+      "guiding_strength": "引导强度",
+      "adain_factor": "AdaIn强度",
+      "horizontal_tiles": "水平分块数",
+      "vertical_tiles": "垂直分块数",
+      "spatial_overlap": "空间重叠",
+      "save_images": "保存图像序列",
+      "output_dir": "输出目录",
+      "filename_prefix": "文件名前缀",
+      "start_number": "起始编号",
+      "digits": "数字位数",
+      "render_video_fps": "合成视频帧率",
+      "optional_cond_images": "条件图像",
+      "optional_cond_image_indices": "关键帧索引",
+      "optional_guiding_latents": "引导潜变量",
+      "optional_negative_index_latents": "负索引潜变量",
+      "optional_normalizing_latents": "归一化参考潜变量",
+      "optional_positive_conditionings": "动态正向条件",
+      "guiding_start_step": "引导开始步",
+      "guiding_end_step": "引导结束步"
+    },
+    "outputs": {
+      "LATENT": "潜变量",
+      "output_info": "输出信息"
+    }
+  }
+}
