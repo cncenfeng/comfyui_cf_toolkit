@@ -124,10 +124,6 @@ class CF_BatchImageManager:
             filename = f"{next_num + i:03d}.png"
             img.save(os.path.join(target_dir, filename))
 
-        files = list_media_files(target_dir, IMAGE_EXTENSIONS)
-        exclude_set = set(filter(None, (f.strip() for f in exclude_files.split(","))))
-        result = _load_batch(target_dir, files, exclude_set, width, height)
-
         try:
             server.PromptServer.instance.send_sync(
                 "cf_batch_media_refresh", {"subdir": subdirectory}
@@ -135,7 +131,7 @@ class CF_BatchImageManager:
         except Exception as e:
             print(f"[CF_BatchImageManager] refresh event failed: {e}")
 
-        return result
+        return image_batch, image_batch.shape[0]
 
 
 NODE_CLASS_MAPPINGS = {

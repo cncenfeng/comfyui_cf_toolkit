@@ -7,8 +7,6 @@ const TARGET_VIDEO_LOADER  = "CF_BatchVideoLoader";
 const TARGET_VIDEO_MANAGER = "CF_BatchVideoManager";
 const FIXED_HEIGHT = 200;
 
-let sortable = null;
-
 async function fetchFileList(routeKey, subdir) {
     const resp = await fetch(api.apiURL(`/cf_media/${routeKey}/list?subdir=${encodeURIComponent(subdir)}`));
     if (!resp.ok) return [];
@@ -306,13 +304,15 @@ function addUI(node, routeKey, isVideo) {
                 document.head.appendChild(script);
             });
         }
-        if (sortable) sortable.destroy();
-        sortable = new window.Sortable(listDiv, {
-            animation: 150,
-            handle: ".media-item",
-            ghostClass: "sortable-ghost",
-            direction: "horizontal",
-        });
+        if (listDiv._sortable) listDiv._sortable.destroy();
+        if (window.Sortable) {
+            listDiv._sortable = new window.Sortable(listDiv, {
+                animation: 150,
+                handle: ".media-item",
+                ghostClass: "sortable-ghost",
+                direction: "horizontal",
+            });
+        }
     }
 
     // --- Button handlers ---
