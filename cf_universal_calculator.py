@@ -1,11 +1,15 @@
+from .cf_help_loader import get_help_en
+
 class CF_UniversalCalculator:
+    DESCRIPTION = get_help_en("CF_UniversalCalculator")
+
     @classmethod
     def INPUT_TYPES(s):
         return {
             "required": {
-                "A": ("*", {"default": 0}),   # 万能输入，默认整数 0
+                "A": ("*", {"default": 0}),
                 "B": ("*", {"default": 0}),
-                "运算模式": ([
+                "operation": ([
                     "Add (➕)", "Sub (➖)", "Mul (✖)", "Div (➗)", "Mod (余)", "Pow (幂)",
                     "Eq (等于)", "Neq (不等于)", "Gt (大于)", "Gte (>=)", "Lt (小于)", "Lte (<=)",
                     "And (与)", "Nand (与非)", "Or (或)", "Nor (或非)",
@@ -16,26 +20,24 @@ class CF_UniversalCalculator:
         }
 
     RETURN_TYPES = ("*", "STRING")
-    RETURN_NAMES = ("结果", "表达式")
+    RETURN_NAMES = ("result", "expression")
     FUNCTION = "calculate"
     CATEGORY = "CF工具包"
 
-    def calculate(self, A, B, 运算模式):
-        mode = 运算模式.split(" ")[0]   # 提取英文缩写
+    def calculate(self, A, B, operation):
+        mode = operation.split(" ")[0]
 
-        # 将输入尝试转换为数字（如果是 str），否则保持原样
         def to_num(x):
             if isinstance(x, (int, float)):
                 return x
             try:
                 return float(x)
             except (ValueError, TypeError):
-                return x   # 无法转换则保留，后续运算可能报错
+                return x
 
         a = to_num(A)
         b = to_num(B)
 
-        # ---- 算术 ----
         if mode == "Add":
             result = a + b
         elif mode == "Sub":
@@ -48,8 +50,6 @@ class CF_UniversalCalculator:
             result = a % b if b != 0 else float("nan")
         elif mode == "Pow":
             result = a ** b
-
-        # ---- 比较（输出布尔值）----
         elif mode == "Eq":
             result = a == b
         elif mode == "Neq":
@@ -62,8 +62,6 @@ class CF_UniversalCalculator:
             result = a < b
         elif mode == "Lte":
             result = a <= b
-
-        # ---- 逻辑/位（输出布尔值）----
         elif mode == "And":
             result = (a != 0) and (b != 0)
         elif mode == "Nand":
@@ -77,18 +75,14 @@ class CF_UniversalCalculator:
         elif mode == "Xnor":
             result = (bool(a) == bool(b))
         elif mode == "Not":
-            result = a == 0   # 若 a 为 0 则 True，否则 False
-
-        # ---- 聚合 ----
+            result = a == 0
         elif mode == "Max":
             result = max(a, b)
         elif mode == "Min":
             result = min(a, b)
-
         else:
             result = None
 
-        # 表达式字符串，直接显示原生结果
         if mode == "Not":
             expr = f"NOT {A} = {result}"
         else:

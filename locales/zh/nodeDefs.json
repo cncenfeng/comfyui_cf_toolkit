@@ -1,41 +1,115 @@
 {
-  "CF_LongVideoSampler": {
-    "title": "CF 长视频采样器",
+  "CF_BatchImageLoader": {
+    "display_name": "CF 批量图像加载器",
+    "description": "从输入子目录加载图片，输出统一的图像批次张量。子目录=ComfyUI/input/下的文件夹。输出宽度/高度=0时保持原尺寸，>0时缩放并居中裁剪。通过上传按钮添加图片，拖拽排序，点击缩略图放大预览，眼睛按钮可隐藏/显示特定图片。",
     "inputs": {
-      "model": "模型",
-      "vae": "VAE",
-      "noise": "噪声",
-      "sampler": "采样器",
-      "sigmas": "噪声调度",
-      "guider": "引导器",
-      "latents": "潜变量",
-      "temporal_tile_size": "时间块大小（帧）",
-      "temporal_overlap": "时间重叠（帧）",
-      "temporal_overlap_cond_strength": "时间条件强度",
-      "cond_image_strength": "图像条件强度",
-      "guiding_strength": "引导强度",
-      "adain_factor": "AdaIn强度",
-      "horizontal_tiles": "水平分块数",
-      "vertical_tiles": "垂直分块数",
-      "spatial_overlap": "空间重叠",
-      "save_images": "保存图像序列",
-      "output_dir": "输出目录",
-      "filename_prefix": "文件名前缀",
-      "start_number": "起始编号",
-      "digits": "数字位数",
-      "render_video_fps": "合成视频帧率",
-      "optional_cond_images": "条件图像",
-      "optional_cond_image_indices": "关键帧索引",
-      "optional_guiding_latents": "引导潜变量",
-      "optional_negative_index_latents": "负索引潜变量",
-      "optional_normalizing_latents": "归一化参考潜变量",
-      "optional_positive_conditionings": "动态正向条件",
-      "guiding_start_step": "引导开始步",
-      "guiding_end_step": "引导结束步"
+      "subdirectory": { "name": "子目录" },
+      "width": { "name": "输出宽度" },
+      "height": { "name": "输出高度" },
+      "exclude_files": { "name": "排除文件" }
     },
     "outputs": {
-      "LATENT": "潜变量",
-      "output_info": "输出信息"
+      "0": { "name": "图像批次" },
+      "1": { "name": "批次数量" }
+    }
+  },
+  "CF_BatchImageManager": {
+    "display_name": "CF 批量图像管理器",
+    "description": "接收图像批次存入输出目录，再重新读取并输出为张量批次。覆盖模式=开启时存图前清空目录；关闭时从最大编号+1继续追加。适用于迭代工作流，每次生成的图片自动累积到输出目录中。",
+    "inputs": {
+      "image_batch": { "name": "图像批次" },
+      "subdirectory": { "name": "子目录" },
+      "overwrite": { "name": "覆盖模式" },
+      "width": { "name": "输出宽度" },
+      "height": { "name": "输出高度" },
+      "exclude_files": { "name": "排除文件" }
+    },
+    "outputs": {
+      "0": { "name": "图像批次" },
+      "1": { "name": "批次数量" }
+    }
+  },
+  "CF_BatchVideoLoader": {
+    "display_name": "CF 批量视频加载器",
+    "description": "列出输入子目录下所有视频文件，输出视频数量。支持mp4/avi/mov/webm/mkv格式。仅用于查看视频文件清单，如需拼接视频请使用CF_BatchVideoManager。",
+    "inputs": {
+      "subdirectory": { "name": "子目录" }
+    },
+    "outputs": {
+      "0": { "name": "视频数量" }
+    }
+  },
+  "CF_BatchVideoManager": {
+    "display_name": "CF 批量视频管理器",
+    "description": "管理输出目录下的视频文件，可选将全部视频拼接为一个文件。拼接视频=开启后调用ffmpeg将目录下所有视频合并为一个mp4（需系统安装ffmpeg）。覆盖模式=开启时替换已存在的拼接结果。",
+    "inputs": {
+      "subdirectory": { "name": "子目录" },
+      "concatenate": { "name": "拼接视频" },
+      "overwrite": { "name": "覆盖模式" }
+    },
+    "outputs": {
+      "0": { "name": "输出视频路径" },
+      "1": { "name": "视频数量" }
+    }
+  },
+  "CF_SimpleAudioCutter": {
+    "display_name": "CF 音频切片+AI分析",
+    "description": "基于Qwen2-Audio-7B的音频切片与AI分析节点。通过波形编辑器可视化设置时间标记进行切片，可选跳过初始段和包含尾部段。用自然语言输入分析指令（如歌词/情感/乐器等），AI自动分析音频内容。输出合并音频、分段时长、分析文本、当前分段音频等。",
+    "inputs": {
+      "audio_file": { "name": "音频文件" },
+      "keyframe_json": { "name": "关键帧JSON" },
+      "skip_initial_segment": { "name": "跳过初始段" },
+      "include_tail_segment": { "name": "包含尾部段" },
+      "analysis_prompt": { "name": "分析指令" },
+      "max_new_tokens": { "name": "最大输出长度" },
+      "temperature": { "name": "温度" },
+      "top_p": { "name": "核采样 (top_p)" },
+      "top_k": { "name": "Top-K 采样" },
+      "repetition_penalty": { "name": "重复惩罚" },
+      "seed": { "name": "随机种子" },
+      "include_duration": { "name": "包含音频时长" },
+      "unload_model": { "name": "推理后卸载模型" },
+      "correct_lyrics": { "name": "参考歌词" },
+      "segment_index": { "name": "分段索引" }
+    },
+    "outputs": {
+      "0": { "name": "音频(合并)" },
+      "1": { "name": "分段整数秒列表" },
+      "2": { "name": "分析文本" },
+      "3": { "name": "音频时长(秒)" },
+      "4": { "name": "当前分段音频" },
+      "5": { "name": "总段数" }
+    }
+  },
+  "CF_QwenImageEditEnhanced": {
+    "display_name": "CF Qwen 图像编辑 (批量图像)",
+    "description": "基于Qwen2.5-VL的智能图像编辑节点。在USER_PROMPT中使用[pic:N]标记动态引用图像批次中的图片。首个被引用的图片作为主图输出。每行一个场景描述，切换场景索引可选择。支持换装、背景替换、多角色互动等复杂编辑场景。",
+    "inputs": {
+      "clip": { "name": "CLIP 模型" },
+      "USER_PROMPT": { "name": "用户提示词" },
+      "scene_index": { "name": "场景索引" },
+      "SYSTEM_INSTRUCTION": { "name": "系统指令" },
+      "ASSISTANT_PRIMING": { "name": "助手引导" },
+      "vae": { "name": "VAE" },
+      "image": { "name": "图像" }
+    },
+    "outputs": {
+      "0": { "name": "条件" },
+      "1": { "name": "主图" },
+      "2": { "name": "总行数" }
+    }
+  },
+  "CF_UniversalCalculator": {
+    "display_name": "CF 通用运算器",
+    "description": "支持20+种运算模式的通用运算器。算术：加减乘除、取余、幂运算；比较：等于、不等于、大于、小于等6种；逻辑：与或非、异或同或等8种；聚合：最大值、最小值。输入AB使用万能类型接受int/float/bool。除数为零返回NaN不崩溃。同时输出结果和表达式字符串。",
+    "inputs": {
+      "A": { "name": "操作数 A" },
+      "B": { "name": "操作数 B" },
+      "operation": { "name": "运算模式" }
+    },
+    "outputs": {
+      "0": { "name": "结果" },
+      "1": { "name": "表达式" }
     }
   }
 }

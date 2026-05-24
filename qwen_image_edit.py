@@ -4,12 +4,16 @@ import re
 import comfy.utils
 import node_helpers
 
+from .cf_help_loader import get_help_en
+
 # 短版系统提示词（单行，无换行）
 DEFAULT_SYSTEM_INSTRUCTION = "Analyze the input image's artistic style, lighting, color palette, texture quality, overall mood, and the main character's facial features, body proportions, and unique identity traits. Then explain how the user's instruction alters the image. Finally generate a new image that strictly preserves the analyzed style, lighting, colors, and texture, keeps the character's facial identity, body proportions, and unique traits completely consistent, precisely applies the user's modifications, and maintains overall image coherence."
 
 DEFAULT_ASSISTANT_PRIMING = "A bright and youthful campus romance film still, soft pastel tones, clean and fresh atmosphere, light and airy feel, natural skin texture, realistic cinematic lighting, shot on a Sony A7III."
 
 class CF_QwenImageEditEnhanced:
+    DESCRIPTION = get_help_en("CF_QwenImageEditEnhanced")
+
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -20,7 +24,7 @@ class CF_QwenImageEditEnhanced:
                     "dynamicPrompts": True,
                     "placeholder": "每行一个场景描述。使用 [pic:N] 引用图片（从1开始）。第一个引用的图片会作为主图输出。"
                 }),
-                "场景索引": ("INT", {"default": 1, "min": 1, "max": 1000, "step": 1, "label": "场景索引（第几行）"}),
+                "scene_index": ("INT", {"default": 1, "min": 1, "max": 1000, "step": 1, "label": "场景索引（第几行）"}),
                 "SYSTEM_INSTRUCTION": ("STRING", {
                     "multiline": True,
                     "default": DEFAULT_SYSTEM_INSTRUCTION,
@@ -43,13 +47,13 @@ class CF_QwenImageEditEnhanced:
     CATEGORY = "CF工具包"
     DESCRIPTION = "CF Qwen Image Edit with dynamic image reference via [pic:N] tags. Supports repeated references and arbitrary batch size."
 
-    def encode(self, clip, USER_PROMPT, 场景索引, SYSTEM_INSTRUCTION, ASSISTANT_PRIMING, unique_id=None, vae=None, image=None):
+    def encode(self, clip, USER_PROMPT, scene_index, SYSTEM_INSTRUCTION, ASSISTANT_PRIMING, unique_id=None, vae=None, image=None):
         # ---- 1. 解析场景 ----
         lines = [line.strip() for line in USER_PROMPT.split("\n") if line.strip()]
         if not lines:
             lines = [USER_PROMPT.strip() or "Default scene"]
         total_lines = len(lines)
-        idx = max(0, min(场景索引 - 1, total_lines - 1))
+        idx = max(0, min(scene_index - 1, total_lines - 1))
         selected_prompt = lines[idx]
 
         # ---- 2. 提取所有 [pic:N] 并按顺序记录是否有效 ----

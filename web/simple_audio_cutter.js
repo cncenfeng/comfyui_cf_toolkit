@@ -89,7 +89,7 @@ function formatTime(seconds) {
 }
 
 function normalizeSegmentIndexWidget(node) {
-    const widget = getWidget(node, "分段索引");
+    const widget = getWidget(node, "segment_index");
     if (!widget) return;
     const raw = widget.value;
     if (raw === "" || raw === null || raw === undefined || Number.isNaN(Number(raw))) {
@@ -227,7 +227,7 @@ function buildEditor(node) {
                 const filename = await uploadFile(file, (p) => {
                     uploadButton.textContent = `上传中 ${Math.round(p * 100)}%`;
                 });
-                const pathWidget = getWidget(node, "音频文件");
+                const pathWidget = getWidget(node, "audio_file");
                 if (pathWidget) {
                     if (!pathWidget.options.values.includes(filename)) {
                         pathWidget.options.values.push(filename);
@@ -288,7 +288,7 @@ function buildEditor(node) {
             }
         }
 
-        const keyframesWidget = getWidget(node, "关键帧JSON");
+        const keyframesWidget = getWidget(node, "keyframe_json");
         const keyframes = normalizeKeyframes(parseKeyframes(keyframesWidget?.value), state.duration);
         keyframes.forEach((time, index) => {
             const ratio = state.duration > 0 ? time / state.duration : 0;
@@ -315,13 +315,13 @@ function buildEditor(node) {
             context.stroke();
         }
 
-        const skipWidget = getWidget(node, "跳过初始段");
-        const tailWidget = getWidget(node, "包含尾部段");
+        const skipWidget = getWidget(node, "skip_initial_segment");
+        const tailWidget = getWidget(node, "include_tail_segment");
         status.textContent = `时间 ${formatTime(audio.currentTime || 0)} / ${formatTime(state.duration)} | 标记 ${keyframes.length} | 选中 ${state.selectedIndex + 1} | 跳过首段 ${Boolean(skipWidget?.value)} | 包含尾段 ${Boolean(tailWidget?.value)}`;
     };
 
     const syncKeyframes = (nextKeyframes, preferredSelectedIndex = null) => {
-        const keyframesWidget = getWidget(node, "关键帧JSON");
+        const keyframesWidget = getWidget(node, "keyframe_json");
         const normalized = normalizeKeyframes(nextKeyframes, state.duration);
         const serialized = JSON.stringify(normalized.map((value) => Number(value.toFixed(3))));
         if (keyframesWidget) keyframesWidget.value = serialized;
@@ -330,7 +330,7 @@ function buildEditor(node) {
     };
 
     const loadWaveform = async () => {
-        const audioFileWidget = getWidget(node, "音频文件");
+        const audioFileWidget = getWidget(node, "audio_file");
         const audioFile = String(audioFileWidget?.value || "").trim();
         state.error = "";
         if (!audioFile) {
@@ -353,7 +353,7 @@ function buildEditor(node) {
             const audioUrl = api.apiURL(`/simpleaudio/audio-file?audio_file=${encodeURIComponent(audioFile)}`);
             audio.src = audioUrl;
             audio.load();
-            const currentKeyframes = parseKeyframes(getWidget(node, "关键帧JSON")?.value);
+            const currentKeyframes = parseKeyframes(getWidget(node, "keyframe_json")?.value);
             syncKeyframes(currentKeyframes, state.selectedIndex);
         } catch (error) {
             state.error = error?.message || String(error);
@@ -374,7 +374,7 @@ function buildEditor(node) {
         }
         audio.currentTime = snapped;
 
-        const keyframes = normalizeKeyframes(parseKeyframes(getWidget(node, "关键帧JSON")?.value), state.duration);
+        const keyframes = normalizeKeyframes(parseKeyframes(getWidget(node, "keyframe_json")?.value), state.duration);
         if (!keyframes.length) {
             render();
             return;
@@ -408,7 +408,7 @@ function buildEditor(node) {
             current = Math.min(current, Math.max(0, state.duration - 0.001));
         }
         audio.currentTime = current;
-        const keyframes = parseKeyframes(getWidget(node, "关键帧JSON")?.value);
+        const keyframes = parseKeyframes(getWidget(node, "keyframe_json")?.value);
         keyframes.push(current);
         const normalized = normalizeKeyframes(keyframes, state.duration);
         const bucket = Math.round(current / SNAP_STEP_SECONDS);
@@ -417,7 +417,7 @@ function buildEditor(node) {
     });
 
     removeButton.addEventListener("click", () => {
-        const keyframes = normalizeKeyframes(parseKeyframes(getWidget(node, "关键帧JSON")?.value), state.duration);
+        const keyframes = normalizeKeyframes(parseKeyframes(getWidget(node, "keyframe_json")?.value), state.duration);
         if (!keyframes.length) return;
         keyframes.splice(state.selectedIndex, 1);
         syncKeyframes(keyframes, Math.max(0, state.selectedIndex - 1));
@@ -432,7 +432,7 @@ function buildEditor(node) {
     canvas.addEventListener("pointermove", (event) => { if (state.pointerDown) seekToPosition(event); });
     window.addEventListener("pointerup", () => { state.pointerDown = false; });
 
-    const audioFileWidget = getWidget(node, "音频文件");
+    const audioFileWidget = getWidget(node, "audio_file");
     if (audioFileWidget && !audioFileWidget.__ltxMyHooked) {
         const originalCallback = audioFileWidget.callback;
         audioFileWidget.callback = function (value) {
@@ -443,8 +443,8 @@ function buildEditor(node) {
         audioFileWidget.__ltxMyHooked = true;
     }
 
-    const keyframesWidget = getWidget(node, "关键帧JSON");
-    const renderIdWidget = getWidget(node, "渲染ID");
+    const keyframesWidget = getWidget(node, "keyframe_json");
+    const renderIdWidget = getWidget(node, "render_id");
     hideWidget(keyframesWidget);
     hideWidget(renderIdWidget);
 
@@ -459,8 +459,8 @@ function buildEditor(node) {
 
 function syncFromStoredState(node) {
     normalizeSegmentIndexWidget(node);
-    const keyframesWidget = getWidget(node, "关键帧JSON");
-    const renderIdWidget = getWidget(node, "渲染ID");
+    const keyframesWidget = getWidget(node, "keyframe_json");
+    const renderIdWidget = getWidget(node, "render_id");
     hideWidget(keyframesWidget);
     hideWidget(renderIdWidget);
 
@@ -468,8 +468,8 @@ function syncFromStoredState(node) {
     const keyframes = normalizeKeyframes(parseKeyframes(keyframesWidget?.value), editor.duration);
     editor.selectedIndex = Math.max(0, Math.min(editor.selectedIndex, Math.max(0, keyframes.length - 1)));
     if (editor.container.isConnected) {
-        const skipWidget = getWidget(node, "跳过初始段");
-        const tailWidget = getWidget(node, "包含尾部段");
+        const skipWidget = getWidget(node, "skip_initial_segment");
+        const tailWidget = getWidget(node, "include_tail_segment");
         editor.status.textContent = `时间 ${formatTime(editor.audio.currentTime || 0)} / ${formatTime(editor.duration)} | 标记 ${keyframes.length} | 选中 ${editor.selectedIndex + 1} | 跳过首段 ${Boolean(skipWidget?.value)} | 包含尾段 ${Boolean(tailWidget?.value)}`;
     }
 }

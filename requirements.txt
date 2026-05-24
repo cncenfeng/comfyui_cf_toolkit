@@ -2,6 +2,9 @@ pydub
 requests
 cmake
 scikit-build-core
+transformers
+modelscope
+librosa
 # llama-cpp-python
 # 如果安装 llama-cpp-python 失败请查看以下网址，根据自己的python和 CUDA 版本执行相应命令：
 # https://github.com/dougeeai/llama-cpp-python-wheels/
